@@ -7,14 +7,12 @@ import {
   VenusAndMars,
   Sparkles,
   Palette,
-  Link,
   Save,
   Bookmark,
   Clock,
   Trash2,
 } from 'lucide-react';
 import { UserSettings, THEMES, ThemeId, BookmarkEntry, ReadingHistoryEntry } from '../hooks/useLocalStorage';
-import GoogleSignIn from './GoogleSignIn';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -37,19 +35,6 @@ export default function SettingsPanel({ isOpen, onClose, settings, onSave }: Set
     onSave({ name, dob, age, sex, theme });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleLinkGoogle = (profile: { email: string; name: string; picture: string }) => {
-    onSave({
-      googleLinked: true,
-      googleEmail: profile.email,
-      googleName: profile.name,
-      googlePicture: profile.picture,
-    });
-  };
-
-  const handleUnlinkGoogle = () => {
-    onSave({ googleLinked: false, googleEmail: '', googleName: '', googlePicture: '' });
   };
 
   const handleRemoveBookmark = (key: string) => {
@@ -181,20 +166,7 @@ export default function SettingsPanel({ isOpen, onClose, settings, onSave }: Set
             </div>
           </div>
 
-          {/* Google Account Linking */}
-          <div>
-            <h3 className="text-white/40 text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Link className="w-3 h-3" /> Connected Accounts
-            </h3>
-            <GoogleSignIn
-              isLinked={settings.googleLinked}
-              googleEmail={settings.googleEmail}
-              googleName={settings.googleName}
-              googlePicture={settings.googlePicture}
-              onLink={handleLinkGoogle}
-              onUnlink={handleUnlinkGoogle}
-            />
-          </div>
+
         </div>
 
         {/* Bookmarks Section */}

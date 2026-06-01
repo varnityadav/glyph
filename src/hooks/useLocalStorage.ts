@@ -69,10 +69,6 @@ export interface UserSettings {
   age: number;
   sex: 'male' | 'female' | 'other' | '';
   theme: 'dark' | 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate';
-  googleLinked: boolean;
-  googleEmail: string;
-  googleName: string;
-  googlePicture: string;
   onboardingComplete: boolean;
   bookmarks: BookmarkEntry[];
   readingHistory: ReadingHistoryEntry[];
@@ -85,10 +81,6 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
   age: 0,
   sex: '',
   theme: 'dark',
-  googleLinked: false,
-  googleEmail: '',
-  googleName: '',
-  googlePicture: '',
   onboardingComplete: false,
   bookmarks: [],
   readingHistory: [],

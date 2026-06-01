@@ -17,7 +17,6 @@ import {
   searchBooks,
   searchAuthors,
   getCoverUrl,
-  getReadingUrl,
   getBookUrl,
   OLSearchResult,
   OLAuthorResult,
@@ -31,11 +30,12 @@ interface SearchResultsProps {
   bookmarks: BookmarkEntry[];
   onToggleBookmark: (book: { key: string; title: string; author: string; coverId?: number; ia?: string }) => void;
   onReadingOpen: (book: { key: string; title: string; author: string; coverId?: number; ia?: string }) => void;
+  onReadInApp?: (book: { title: string; author: string; ia?: string; workKey?: string; coverId?: number }) => void;
 }
 
 type ViewMode = 'all' | 'books' | 'authors';
 
-export default function SearchResults({ isOpen, onClose, initialQuery = '', bookmarks, onToggleBookmark, onReadingOpen }: SearchResultsProps) {
+export default function SearchResults({ isOpen, onClose, initialQuery = '', bookmarks, onToggleBookmark, onReadingOpen, onReadInApp }: SearchResultsProps) {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<{
     books: OLSearchResult[];
@@ -234,6 +234,15 @@ export default function SearchResults({ isOpen, onClose, initialQuery = '', book
                             ia: book.ia?.[0],
                           })
                         }
+                        onReadInApp={() =>
+                          onReadInApp?.({
+                            title: book.title,
+                            author: book.author_name?.join(', ') || 'Unknown Author',
+                            ia: book.ia?.[0],
+                            workKey: book.key,
+                            coverId: book.cover_i,
+                          })
+                        }
                       />
                     ))}
                   </div>
@@ -252,12 +261,14 @@ function BookResultCard({
   isBookmarked,
   onToggleBookmark,
   onReadingOpen,
+  onReadInApp,
   ..._rest
 }: {
   book: OLSearchResult;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
   onReadingOpen: () => void;
+  onReadInApp?: () => void;
   key?: string | number;
 }) {
   const coverUrl = book.cover_i
@@ -266,7 +277,6 @@ function BookResultCard({
     ? `https://covers.openlibrary.org/b/isbn/${book.isbn[0]}-M.jpg`
     : null;
   const canRead = book.has_fulltext && book.ia && book.ia.length > 0;
-  const readingUrl = canRead ? getReadingUrl(book.ia![0]) : null;
 
   return (
     <div className="flex gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-all group">
@@ -310,6 +320,19 @@ function BookResultCard({
 
       {/* Actions */}
       <div className="flex items-center gap-1.5 shrink-0">
+        {/* Read in App button - only for books with digitized text */}
+        {canRead && onReadInApp && (
+          <button
+            onClick={() => {
+              onReadingOpen();
+              onReadInApp();
+            }}
+            className="w-8 h-8 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 flex items-center justify-center text-emerald-400/80 hover:text-emerald-400 transition-all"
+            title="Read in app"
+          >
+            <BookOpen className="w-4 h-4" />
+          </button>
+        )}
         {/* Bookmark Toggle */}
         <button
           onClick={onToggleBookmark}
@@ -326,18 +349,6 @@ function BookResultCard({
             <Bookmark className="w-4 h-4" />
           )}
         </button>
-        {readingUrl && (
-          <a
-            href={readingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onReadingOpen}
-            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/50 hover:text-emerald-400 transition-all"
-            title="Read online"
-          >
-            <Eye className="w-4 h-4" />
-          </a>
-        )}
         <a
           href={getBookUrl(book.key)}
           target="_blank"
